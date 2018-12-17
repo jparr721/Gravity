@@ -9,7 +9,6 @@ int handle_args(char** argv, struct opts* arg_buffer) {
   arg_buffer->memory = strtol(argv[2], &catch, 10);
   arg_buffer->processors = strtol(argv[3], &catch, 10);
   if (catch != NULL) {
-    fprintf(stderr, "Error! Failed to perform integer conversion");
     return EXIT_FAILURE;
   }
 
