@@ -8,5 +8,6 @@ int intialize_container(struct opts args);
 int get_pid_max();
 
 static int subprocess(void* args);
+static int get_cpu_count();
 
 #endif

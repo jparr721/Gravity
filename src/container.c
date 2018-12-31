@@ -8,6 +8,23 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#ifdef HAVE_SYS_SYSINFO_H
+#include <sys/sysinfo.h>
+#endif
+
+#ifdef __APPLE__
+#include "rmemchr.c"
+#endif
+
+#ifdef __APPLE__ || __FREEBSD__
+#include <libgen.h>
+#endif
+
+// Pid ref of Gravity
+pid_t gravity_pid;
+// Name of Gravity
+char* gravity_name;
+
 int initialize_container(struct opts args) {
   int clone_flag = SIGCHLD;
   int stack_size = args.memory;
@@ -47,6 +64,22 @@ int get_pid_max() {
 #elif defined __APPLE__
   return 99998;
 #endif
+}
+
+static int get_cpu_count() {
+  int cpu_count;
+#ifdef _SC_NPROCESSORS_ONLN
+  cpu_count = sysconf(_SC_NPROCESSORS_ONLN);
+#elif defined __APPLE__
+  int mib[2] = {CTL_HW, HW_NCPU};
+  size_t len = sizeof(cpu_count);
+  sysctl(mib, 2, &cpu_count, &len, NULL, 0);
+#elif defined _GNU_SOURCE
+  cpu_count = get_nprocs();
+#else
+  cpu_count = -1;
+#endif
+  return cpu_count;
 }
 
 static int subprocess(void* args) {
